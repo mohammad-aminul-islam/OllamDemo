@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.AI;
+using OllamaAIDemo.DTOs;
 using OllamaSharp;
+using System.Runtime.CompilerServices;
 
 namespace OllamaAIDemo.ChatClient;
 public class ApplicationChatClient : IApplicationChatClient
@@ -10,40 +12,24 @@ public class ApplicationChatClient : IApplicationChatClient
     {
         this._chatClient = chatClient;
     }
-    public async Task<string> ChatAsync(string prompt, CancellationToken cancellationToken)
+    public async IAsyncEnumerable<string> ChatAsync(
+        ChatRequestDto request,
+        [EnumeratorCancellation]CancellationToken cancellationToken)
     {
-        try
+        List<ChatMessage> chatHistory = new()
         {
-            List<ChatMessage> chatHistory = new List<ChatMessage>();
-            var res = await _chatClient.GetResponseAsync(new ChatMessage(ChatRole.User, prompt));
-            string responese = "";
-            foreach (ChatMessage chatMessage in res.Messages)
-            {
-                responese += chatMessage.Text;
-                chatHistory.Add(chatMessage);
-            }
-            return responese;
-            //while (true)
-            //{
-            //    Console.WriteLine("What's on your mind! Mohammad");
-            //    string prompt = Console.ReadLine();
-            //    chatHistory.Add(new ChatMessage(ChatRole.User, prompt));
-            //    string response = string.Empty;
-            //    await foreach (var item in chatClient.GetStreamingResponseAsync(chatHistory, cancellationToken: cancellationToken))
-            //    {
-            //        Console.WriteLine(item.Text);
-            //        response += item.Text;
-            //    }
-            //    chatHistory.Add(new ChatMessage(ChatRole.Assistant, response));
-            //    Console.ReadLine();
-            //}
-        }
-        catch (Exception ex)
-        {
-            Console.BackgroundColor = ConsoleColor.Red;
-            Console.WriteLine($"{ex.Message}\n {ex.StackTrace}");
-            return ex.Message;
-        }
+            new ChatMessage(ChatRole.User, request.Prompt)
+        };
 
+        await foreach (var item in _chatClient.GetStreamingResponseAsync(
+            chatHistory,
+            cancellationToken: cancellationToken))
+        {
+            if (!string.IsNullOrEmpty(item.Text))
+            {
+                Console.WriteLine(item.Text);
+                yield return item.Text;
+            }
+        }
     }
 }

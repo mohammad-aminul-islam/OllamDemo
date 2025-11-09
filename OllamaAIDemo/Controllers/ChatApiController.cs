@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OllamaAIDemo.ChatClient;
+using OllamaAIDemo.DTOs;
+using System.Runtime.CompilerServices;
+using System.Text.Json;
 
 namespace OllamaAIDemo.Controllers;
 
@@ -9,16 +12,43 @@ namespace OllamaAIDemo.Controllers;
 public class ChatApiController : ControllerBase
 {
     private readonly IApplicationChatClient _applicationChatClient;
-
     public ChatApiController(IApplicationChatClient applicationChatClient)
     {
         this._applicationChatClient = applicationChatClient;
     }
 
     [HttpPost]
-    public async Task<IActionResult> ChatAsync(string prompt, CancellationToken cancellationToken)
+    public async Task ChatAsync(
+        [FromBody] ChatRequestDto request,
+        CancellationToken cancellationToken)
     {
-        var response = await _applicationChatClient.ChatAsync(prompt, cancellationToken);
-        return Ok(response);
+        Response.Headers.Add("Content-Type", "text/event-stream");
+        Response.Headers.Add("Cache-Control", "no-cache");
+        Response.Headers.Add("Connection", "keep-alive");
+
+        try
+        {
+            await foreach (var chunk in _applicationChatClient.ChatAsync(request, cancellationToken))
+            {
+                var json = JsonSerializer.Serialize(new { content = chunk, done = false });
+                await Response.WriteAsync($"data: {json}\n\n", cancellationToken);
+                await Response.Body.FlushAsync(cancellationToken);
+            }
+
+            var doneJson = JsonSerializer.Serialize(new { content = "", done = true });
+            await Response.WriteAsync($"data: {doneJson}\n\n", cancellationToken);
+            await Response.Body.FlushAsync(cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            // Client disconnected - this is normal, just log it
+            Console.WriteLine("Client cancelled the request");
+        }
+        catch (Exception ex)
+        {
+            // Handle other exceptions
+            Console.WriteLine($"Error during streaming: {ex.Message}");
+            throw;
+        }
     }
 }

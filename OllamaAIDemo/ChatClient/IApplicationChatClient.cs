@@ -1,6 +1,9 @@
-﻿namespace OllamaAIDemo.ChatClient;
+﻿using OllamaAIDemo.DTOs;
+using System.Runtime.CompilerServices;
+
+namespace OllamaAIDemo.ChatClient;
 
 public interface IApplicationChatClient
 {
-    Task<string> ChatAsync(string prompt, CancellationToken cancellationToken);
+    IAsyncEnumerable<string> ChatAsync(ChatRequestDto request, CancellationToken cancellationToken);
 }
