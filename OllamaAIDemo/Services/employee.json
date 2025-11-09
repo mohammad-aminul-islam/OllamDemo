@@ -1,0 +1,162 @@
+[
+    {
+        "name": "John Doe",
+        "designation": "Senior Software Engineer",
+        "salary": 95000,
+        "department": "Engineering",
+        "country": "USA",
+        "yearsOfExperience": 8
+    },
+    {
+        "name": "Jane Smith",
+        "designation": "Product Manager",
+        "salary": 110000,
+        "department": "Product",
+        "country": "USA",
+        "yearsOfExperience": 10
+    },
+    {
+        "name": "Ahmed Hassan",
+        "designation": "Software Engineer",
+        "salary": 75000,
+        "department": "Engineering",
+        "country": "Bangladesh",
+        "yearsOfExperience": 5
+    },
+    {
+        "name": "Fatima Rahman",
+        "designation": "Senior Data Analyst",
+        "salary": 68000,
+        "department": "Analytics",
+        "country": "Bangladesh",
+        "yearsOfExperience": 7
+    },
+    {
+        "name": "Maria Garcia",
+        "designation": "UX Designer",
+        "salary": 82000,
+        "department": "Design",
+        "country": "Spain",
+        "yearsOfExperience": 6
+    },
+    {
+        "name": "Raj Patel",
+        "designation": "DevOps Engineer",
+        "salary": 88000,
+        "department": "Engineering",
+        "country": "India",
+        "yearsOfExperience": 7
+    },
+    {
+        "name": "Sarah Johnson",
+        "designation": "Marketing Manager",
+        "salary": 92000,
+        "department": "Marketing",
+        "country": "USA",
+        "yearsOfExperience": 9
+    },
+    {
+        "name": "Karim Abdullah",
+        "designation": "Junior Developer",
+        "salary": 45000,
+        "department": "Engineering",
+        "country": "Bangladesh",
+        "yearsOfExperience": 2
+    },
+    {
+        "name": "Emily Chen",
+        "designation": "Data Scientist",
+        "salary": 105000,
+        "department": "Analytics",
+        "country": "USA",
+        "yearsOfExperience": 6
+    },
+    {
+        "name": "Mohammed Ali",
+        "designation": "QA Engineer",
+        "salary": 62000,
+        "department": "Engineering",
+        "country": "Bangladesh",
+        "yearsOfExperience": 4
+    },
+    {
+        "name": "Lisa Anderson",
+        "designation": "HR Manager",
+        "salary": 85000,
+        "department": "HR",
+        "country": "USA",
+        "yearsOfExperience": 11
+    },
+    {
+        "name": "Carlos Rodriguez",
+        "designation": "Backend Developer",
+        "salary": 78000,
+        "department": "Engineering",
+        "country": "Mexico",
+        "yearsOfExperience": 5
+    },
+    {
+        "name": "Nusrat Jahan",
+        "designation": "Content Writer",
+        "salary": 38000,
+        "department": "Marketing",
+        "country": "Bangladesh",
+        "yearsOfExperience": 3
+    },
+    {
+        "name": "David Lee",
+        "designation": "Engineering Manager",
+        "salary": 135000,
+        "department": "Engineering",
+        "country": "USA",
+        "yearsOfExperience": 12
+    },
+    {
+        "name": "Priya Sharma",
+        "designation": "Frontend Developer",
+        "salary": 70000,
+        "department": "Engineering",
+        "country": "India",
+        "yearsOfExperience": 4
+    },
+    {
+        "name": "Tasnim Ahmed",
+        "designation": "Business Analyst",
+        "salary": 55000,
+        "department": "Product",
+        "country": "Bangladesh",
+        "yearsOfExperience": 5
+    },
+    {
+        "name": "Michael Brown",
+        "designation": "Solutions Architect",
+        "salary": 125000,
+        "department": "Engineering",
+        "country": "USA",
+        "yearsOfExperience": 14
+    },
+    {
+        "name": "Aisha Khan",
+        "designation": "UI Designer",
+        "salary": 52000,
+        "department": "Design",
+        "country": "Bangladesh",
+        "yearsOfExperience": 4
+    },
+    {
+        "name": "Tom Wilson",
+        "designation": "Sales Manager",
+        "salary": 98000,
+        "department": "Sales",
+        "country": "USA",
+        "yearsOfExperience": 8
+    },
+    {
+        "name": "Sakib Hasan",
+        "designation": "System Administrator",
+        "salary": 58000,
+        "department": "IT",
+        "country": "Bangladesh",
+        "yearsOfExperience": 6
+    }
+]

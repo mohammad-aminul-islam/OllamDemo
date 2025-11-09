@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.AI;
 using OllamaAIDemo.ChatClient;
+using OllamaAIDemo.Services;
 using OllamaSharp;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,7 +21,7 @@ builder.Services.AddSingleton<IChatClient>(sp =>
 });
 
 builder.Services.AddScoped<IApplicationChatClient,ApplicationChatClient>();
-
+builder.Services.AddScoped<EmployeeDataProvider>();
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();

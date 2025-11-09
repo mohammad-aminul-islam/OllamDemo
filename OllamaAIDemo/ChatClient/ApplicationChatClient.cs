@@ -32,4 +32,27 @@ public class ApplicationChatClient : IApplicationChatClient
             }
         }
     }
+
+    public async IAsyncEnumerable<string> AnalyzeAsync(
+        ChatRequestDto request,
+        [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        List<ChatMessage> chatHistory = new()
+        {
+            new ChatMessage(ChatRole.User, request.Prompt),
+            new ChatMessage(ChatRole.System, "You are a data analysis assistant that reads data and extracts insights. Answer exactly what is asked by user. Do not make mistake on calculation on salary data."),
+
+        };
+
+        await foreach (var item in _chatClient.GetStreamingResponseAsync(
+            chatHistory,
+            cancellationToken: cancellationToken))
+        {
+            if (!string.IsNullOrEmpty(item.Text))
+            {
+                Console.WriteLine(item.Text);
+                yield return item.Text;
+            }
+        }
+    }
 }
