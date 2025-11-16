@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.AI;
-using OllamaAIDemo.ChatClient;
+using OllamaAIDemo.AIModelServices;
 using OllamaAIDemo.Services;
 using OllamaSharp;
 
@@ -20,7 +20,8 @@ builder.Services.AddSingleton<IChatClient>(sp =>
     return new OllamaApiClient(httpClient, "llama2");
 });
 
-builder.Services.AddScoped<IApplicationChatClient,ApplicationChatClient>();
+builder.Services.AddKeyedScoped<IAIModelService,OllamaAIModelService>(AIModelName.Ollama);
+builder.Services.AddKeyedScoped<IAIModelService,GemeniAIModelService>(AIModelName.Gemini);
 builder.Services.AddScoped<EmployeeDataProvider>();
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

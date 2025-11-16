@@ -3,22 +3,25 @@ using OllamaAIDemo.DTOs;
 using OllamaSharp;
 using System.Runtime.CompilerServices;
 
-namespace OllamaAIDemo.ChatClient;
-public class ApplicationChatClient : IApplicationChatClient
+namespace OllamaAIDemo.AIModelServices;
+public class OllamaAIModelService : IAIModelService
 {
     private readonly IChatClient _chatClient;
 
-    public ApplicationChatClient(IChatClient chatClient)
+    public AIModelName AIModelName { get; set; } = AIModelName.Ollama;
+
+    public OllamaAIModelService(IChatClient chatClient)
     {
-        this._chatClient = chatClient;
+        _chatClient = chatClient;
     }
     public async IAsyncEnumerable<string> ChatAsync(
         ChatRequestDto request,
-        [EnumeratorCancellation]CancellationToken cancellationToken)
+        [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         List<ChatMessage> chatHistory = new()
         {
-            new ChatMessage(ChatRole.User, request.Prompt)
+            new ChatMessage(ChatRole.User, request.Prompt),
+            new ChatMessage(ChatRole.System,"You are expert as an information provider. Always format the data properly, if needed show data as order list.")
         };
 
         await foreach (var item in _chatClient.GetStreamingResponseAsync(

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using OllamaAIDemo.ChatClient;
 using OllamaAIDemo.DTOs;
 using OllamaAIDemo.Services;
 using System.Text.Json;
@@ -10,10 +9,10 @@ namespace OllamaAIDemo.Controllers;
 [ApiController]
 public class ChatApiController : ControllerBase
 {
-    private readonly IApplicationChatClient _applicationChatClient;
-    public ChatApiController(IApplicationChatClient applicationChatClient)
+    private readonly IAIModelFactory _factory;
+    public ChatApiController(IAIModelFactory applicationChatClient)
     {
-        this._applicationChatClient = applicationChatClient;
+        this._factory = applicationChatClient;
     }
 
     [HttpPost]
@@ -27,7 +26,8 @@ public class ChatApiController : ControllerBase
 
         try
         {
-            await foreach (var chunk in _applicationChatClient.ChatAsync(request, cancellationToken))
+            var selectedModel = _factory.CreateAIModel(request.Model);
+            await foreach (var chunk in selectedModel.ChatAsync(request, cancellationToken))
             {
                 var json = JsonSerializer.Serialize(new { content = chunk, done = false });
                 await Response.WriteAsync($"data: {json}\n\n", cancellationToken);
@@ -67,10 +67,12 @@ public class ChatApiController : ControllerBase
 
         try
         {
+            var selectedModel = _factory.CreateAIModel(request.Model);
+
             var employees = employeeDataProvider.GetEmployees();
             var context = employeeDataProvider.BuildContextPrompt(employees, request.Prompt);
             request.Prompt = context;
-            await foreach (var chunk in _applicationChatClient.AnalyzeAsync(request, cancellationToken))
+            await foreach (var chunk in selectedModel.AnalyzeAsync(request, cancellationToken))
             {
                 var json = JsonSerializer.Serialize(new { content = chunk, done = false });
                 await Response.WriteAsync($"data: {json}\n\n", cancellationToken);

@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using OllamaAIDemo.AIModelServices;
+using System.Text.Json.Serialization;
 
 namespace OllamaAIDemo.DTOs;
 
@@ -7,5 +8,5 @@ public class ChatRequestDto
     [JsonPropertyName("prompt")]
     public string Prompt { get; set; }
     [JsonPropertyName("model")]
-    public string Model { get; set; }
+    public AIModelName Model { get; set; }
 }
