@@ -18,9 +18,11 @@ public class OllamaAIModelService : IAIModelService
         ChatRequestDto request,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
+        var userMessage = new ChatMessage(ChatRole.User, request.Prompt);
+        userMessage.Contents.Add(new DataContent(File.ReadAllBytes("Images/traffic02.png"), "image/png"));
         List<ChatMessage> chatHistory = new()
         {
-            new ChatMessage(ChatRole.User, request.Prompt),
+            userMessage,
             new ChatMessage(ChatRole.System,"You are expert as an information provider. Always format the data properly, if needed show data as order list.")
         };
 

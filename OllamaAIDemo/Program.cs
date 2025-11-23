@@ -1,27 +1,29 @@
 ﻿using Microsoft.Extensions.AI;
+using OllamaAIDemo;
 using OllamaAIDemo.AIModelServices;
 using OllamaAIDemo.Services;
 using OllamaSharp;
 
 var builder = WebApplication.CreateBuilder(args);
 
+string aiModel = builder.Configuration.GetValue<string>("AIModel");
 // Add services to the container.
 builder.Services.AddHttpClient("Ollama", client =>
 {
     client.BaseAddress = new Uri("http://localhost:11434");
-    client.Timeout = Timeout.InfiniteTimeSpan; 
+    client.Timeout = Timeout.InfiniteTimeSpan;
 });
 
 builder.Services.AddSingleton<IChatClient>(sp =>
 {
     var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
     var httpClient = httpClientFactory.CreateClient("Ollama");
-
-    return new OllamaApiClient(httpClient, "llama2");
+    return new OllamaApiClient(httpClient, aiModel);
 });
 
-builder.Services.AddKeyedScoped<IAIModelService,OllamaAIModelService>(AIModelName.Ollama);
-builder.Services.AddKeyedScoped<IAIModelService,GemeniAIModelService>(AIModelName.Gemini);
+builder.Services.AddScoped<IAIModelFactory, AIModelFactory>();
+builder.Services.AddKeyedScoped<IAIModelService, OllamaAIModelService>(AIModelName.Ollama);
+builder.Services.AddKeyedScoped<IAIModelService, GemeniAIModelService>(AIModelName.Gemini);
 builder.Services.AddScoped<EmployeeDataProvider>();
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
