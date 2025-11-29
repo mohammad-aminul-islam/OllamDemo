@@ -9,4 +9,6 @@ public class ChatRequestDto
     public string Prompt { get; set; }
     [JsonPropertyName("model")]
     public AIModelName Model { get; set; }
+    [JsonPropertyName("attachment")]
+    public IFormFile? Attachment { get; set; }
 }
