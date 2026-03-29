@@ -1,12 +1,21 @@
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.DependencyInjection;
+using ModelContextProtocol.Client;
 using OllamaAIDemo;
 using OllamaAIDemo.AIModelServices;
+using OllamaAIDemo.Configuration;
+using OllamaAIDemo.MCPClientService;
 using OllamaAIDemo.Services;
 using OllamaSharp;
 
 var builder = WebApplication.CreateBuilder(args);
 
 string aiModel = builder.Configuration.GetValue<string>("AIModel");
+
+builder.Services.AddOptions<OpenAIConfiguration>()
+    .Bind(builder.Configuration.GetSection("OpenAI"))
+    .ValidateDataAnnotations();
+
 // Add services to the container.
 builder.Services.AddHttpClient("Ollama", client =>
 {
@@ -26,9 +35,11 @@ builder.Services.AddSingleton<IChatClient>(sp =>
         .Build();
 });
 
+builder.Services.AddSingleton<IMcpClientService, DefaultMcpClientService>();
 builder.Services.AddScoped<IAIModelFactory, AIModelFactory>();
 builder.Services.AddKeyedScoped<IAIModelService, OllamaAIModelService>(AIModelName.Ollama);
 builder.Services.AddKeyedScoped<IAIModelService, GemeniAIModelService>(AIModelName.Gemini);
+builder.Services.AddKeyedScoped<IAIModelService, OpenAIModelService>(AIModelName.OpenAI);
 builder.Services.AddScoped<EmployeeDataProvider>();
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -43,12 +54,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-var mcpClient = await McpClient.ConnectAsync(new McpClientOptions
-{
-    Command = "cmd",
-    Args = new[] { "/c", "D:\\MCP\\test.exe" }
-});
-builder.Services.AddSingleton(mcpClient); // Registering to DI container for use in controllers/services
+
 
 var app = builder.Build();
 app.Use(async (context, next) =>
