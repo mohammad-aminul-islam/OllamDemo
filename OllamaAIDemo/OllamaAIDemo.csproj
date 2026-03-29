@@ -10,7 +10,12 @@
     <PackageReference Include="Google.GenAI" Version="0.5.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.10" />
     <PackageReference Include="Microsoft.Extensions.AI" Version="9.10.1" />
+    <PackageReference Include="ModelContextProtocol" Version="1.2.0" />
     <PackageReference Include="OllamaSharp" Version="5.4.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="MCPClientService\" />
   </ItemGroup>
 
 </Project>

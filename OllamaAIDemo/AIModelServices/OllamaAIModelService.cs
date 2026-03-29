@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.AI;
+using Microsoft.Extensions.AI;
+using ModelContextProtocol.Client;
 using OllamaAIDemo.DTOs;
 using OllamaSharp;
 using System.Runtime.CompilerServices;
@@ -7,12 +8,14 @@ namespace OllamaAIDemo.AIModelServices;
 public class OllamaAIModelService : IAIModelService
 {
     private readonly IChatClient _chatClient;
+    private readonly McpClient _mcpClient;
 
     public AIModelName AIModelName { get; set; } = AIModelName.Ollama;
 
-    public OllamaAIModelService(IChatClient chatClient)
+    public OllamaAIModelService(IChatClient chatClient, McpClient mcpClient)
     {
         _chatClient = chatClient;
+        _mcpClient = mcpClient;
     }
     public async IAsyncEnumerable<string> ChatAsync(
         ChatRequestDto request,
@@ -35,8 +38,20 @@ public class OllamaAIModelService : IAIModelService
             new ChatMessage(ChatRole.System,SystemPrompt)
         };
 
+        // 1. Fetch Tools from your MCP connection
+        var mcpToolsList = await _mcpClient.ListToolsAsync(cancellationToken: cancellationToken);
+        
+        // 2. Add them to ChatOptions (use .AsAITool() / .AsAIFunction() extension provided by MCP library)
+        //var options = new ChatOptions
+        //{
+        //    // Note: Different versions of the library use AsAITool() or AsAIFunction() 
+        //    Tools = mcpToolsList.Select(t => t.As()).ToList()
+        //};
+
+        // 3. Pass options into GetStreamingResponseAsync
         await foreach (var item in _chatClient.GetStreamingResponseAsync(
-            chatHistory,
+            chatHistory, // The chat message history
+            //options: options, // Injects MCP tools so the inner client can invoke them automatically
             cancellationToken: cancellationToken))
         {
             if (!string.IsNullOrEmpty(item.Text))

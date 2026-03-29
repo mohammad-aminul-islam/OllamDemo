@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.AI;
+using Microsoft.Extensions.AI;
 using OllamaAIDemo;
 using OllamaAIDemo.AIModelServices;
 using OllamaAIDemo.Services;
@@ -18,7 +18,12 @@ builder.Services.AddSingleton<IChatClient>(sp =>
 {
     var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
     var httpClient = httpClientFactory.CreateClient("Ollama");
-    return new OllamaApiClient(httpClient, aiModel);
+    IChatClient innerClient = new OllamaApiClient(httpClient, aiModel);
+    
+    // Wrap the client to automatically handle function/tool calls
+    return new ChatClientBuilder(innerClient)
+        .UseFunctionInvocation()
+        .Build();
 });
 
 builder.Services.AddScoped<IAIModelFactory, AIModelFactory>();
@@ -37,6 +42,13 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader();
     });
 });
+
+var mcpClient = await McpClient.ConnectAsync(new McpClientOptions
+{
+    Command = "cmd",
+    Args = new[] { "/c", "D:\\MCP\\test.exe" }
+});
+builder.Services.AddSingleton(mcpClient); // Registering to DI container for use in controllers/services
 
 var app = builder.Build();
 app.Use(async (context, next) =>
