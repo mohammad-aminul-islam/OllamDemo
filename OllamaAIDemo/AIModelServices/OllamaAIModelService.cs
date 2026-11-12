@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.AI;
+using Microsoft.Extensions.AI;
+using ModelContextProtocol.Client;
 using OllamaAIDemo.DTOs;
 using OllamaSharp;
 using System.Runtime.CompilerServices;
@@ -7,27 +8,50 @@ namespace OllamaAIDemo.AIModelServices;
 public class OllamaAIModelService : IAIModelService
 {
     private readonly IChatClient _chatClient;
+    private readonly McpClient _mcpClient;
 
     public AIModelName AIModelName { get; set; } = AIModelName.Ollama;
 
-    public OllamaAIModelService(IChatClient chatClient)
+    public OllamaAIModelService(IChatClient chatClient, McpClient mcpClient)
     {
         _chatClient = chatClient;
+        _mcpClient = mcpClient;
     }
     public async IAsyncEnumerable<string> ChatAsync(
         ChatRequestDto request,
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var userMessage = new ChatMessage(ChatRole.User, request.Prompt);
-        userMessage.Contents.Add(new DataContent(File.ReadAllBytes("Images/traffic02.png"), "image/png"));
+        if (request.Attachment != null)
+        {
+            using var ms = new MemoryStream();
+            await request.Attachment.CopyToAsync(ms);
+            var fileBytes = ms.ToArray();
+            var readonlyms = new ReadOnlyMemory<byte>(fileBytes);
+            userMessage.Contents.Add(new DataContent(readonlyms,
+                                                 request.Attachment.ContentType ?? "application/octet-stream"));
+        }
+        //userMessage.Contents.Add(new DataContent(File.ReadAllBytes("Images/traffic02.png"), "image/png"));
         List<ChatMessage> chatHistory = new()
         {
             userMessage,
-            new ChatMessage(ChatRole.System,"You are expert as an information provider. Always format the data properly, if needed show data as order list.")
+            new ChatMessage(ChatRole.System,SystemPrompt)
         };
 
+        // 1. Fetch Tools from your MCP connection
+        var mcpToolsList = await _mcpClient.ListToolsAsync(cancellationToken: cancellationToken);
+        
+        // 2. Add them to ChatOptions (use .AsAITool() / .AsAIFunction() extension provided by MCP library)
+        //var options = new ChatOptions
+        //{
+        //    // Note: Different versions of the library use AsAITool() or AsAIFunction() 
+        //    Tools = mcpToolsList.Select(t => t.As()).ToList()
+        //};
+
+        // 3. Pass options into GetStreamingResponseAsync
         await foreach (var item in _chatClient.GetStreamingResponseAsync(
-            chatHistory,
+            chatHistory, // The chat message history
+            //options: options, // Injects MCP tools so the inner client can invoke them automatically
             cancellationToken: cancellationToken))
         {
             if (!string.IsNullOrEmpty(item.Text))
@@ -60,4 +84,26 @@ public class OllamaAIModelService : IAIModelService
             }
         }
     }
+                                       // Danger First: If there is any danger, hazard, or risky situation in the image, start your response with ""ALERT:"" followed by a short warning.
+    private const string SystemPrompt = @"
+                                        You are an AI image analyst. Analyze the image and provide a detailed response. Follow these instructions:
+
+                                        1. Identify the main objects or subjects in the image.
+                                        2. Describe their attributes (color, size, shape, position, orientation).
+                                        3. Identify any actions, interactions, or activities happening.
+                                        4. Recognize text, symbols, or logos if present.
+                                        5. Summarize the overall scene and context.
+                                        6. Provide insights, potential use cases, or anomalies if any.
+
+                                        Image metadata or description: 
+                                        The image can be of any type, including but not limited to landscapes, urban scenes, people, animals, objects, or abstract art.
+                                        Answer in a structured format:
+                                        - Objects:
+                                        - Attributes:
+                                        - Actions:
+                                        - Text/Logos:
+                                        - Scene Summary:
+                                        - Insights:
+                                            
+                                        ";
 }

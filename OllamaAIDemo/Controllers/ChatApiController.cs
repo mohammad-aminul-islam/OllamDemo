@@ -17,7 +17,7 @@ public class ChatApiController : ControllerBase
 
     [HttpPost]
     public async Task ChatAsync(
-        [FromBody] ChatRequestDto request,
+        [FromForm] ChatRequestDto request,
         CancellationToken cancellationToken)
     {
         Response.Headers.TryAdd("Content-Type", "text/event-stream");
